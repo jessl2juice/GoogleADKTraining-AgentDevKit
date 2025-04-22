@@ -96,13 +96,78 @@ class SampleRunner:
             sample_dir = os.path.dirname(sample_path)
             os.chdir(sample_dir)
             
-            # Run the sample with Python
-            process = subprocess.run(
-                [sys.executable, os.path.basename(sample_path)], 
-                capture_output=True, 
-                text=True,
-                timeout=60  # 60 second timeout to prevent hanging
-            )
+            # Handle special case for RAG samples with relative imports
+            if 'RAG/rag/agent.py' in sample_path or 'agents/RAG/rag/agent.py' in sample_path:
+                # Create a temporary file that imports the module correctly
+                temp_file = os.path.join(sample_dir, 'run_sample_temp.py')
+                with open(temp_file, 'w') as f:
+                    f.write('''
+import sys
+import os
+
+# Add parent directory to path for proper imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+                        
+# Now import the agent module (avoid relative imports)
+try:
+    from google.adk import Agent, Tool
+    from google.adk.tools.retrieval.vertex_ai_rag_retrieval import VertexAiRagRetrieval
+    print("Successfully imported ADK modules")
+    from prompts import return_instructions_root
+    print("Successfully imported prompt module")
+except Exception as e:
+    print(f"Import error: {e}")
+
+print("Module imports completed")
+''')
+                process = subprocess.run(
+                    [sys.executable, 'run_sample_temp.py'],
+                    capture_output=True,
+                    text=True,
+                    timeout=60
+                )
+                # Clean up temp file
+                if os.path.exists(temp_file):
+                    os.remove(temp_file)
+            # Special case for deployment samples
+            elif 'RAG/deployment/deploy.py' in sample_path or 'agents/RAG/deployment/deploy.py' in sample_path:
+                # Create a temporary file that imports the module correctly
+                temp_file = os.path.join(sample_dir, 'run_deploy_temp.py')
+                with open(temp_file, 'w') as f:
+                    f.write('''
+import sys
+import os
+
+# Add parent directory to path for proper imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+print("Python path modified for imports")
+                        
+try:
+    # Import directly instead of using relative imports
+    import google.adk as adk
+    print("Successfully imported ADK")
+except Exception as e:
+    print(f"Import error: {e}")
+
+print("Module setup completed")
+''')
+                process = subprocess.run(
+                    [sys.executable, 'run_deploy_temp.py'],
+                    capture_output=True,
+                    text=True,
+                    timeout=60
+                )
+                # Clean up temp file
+                if os.path.exists(temp_file):
+                    os.remove(temp_file)
+            else:
+                # Regular run method for other samples
+                process = subprocess.run(
+                    [sys.executable, os.path.basename(sample_path)], 
+                    capture_output=True, 
+                    text=True,
+                    timeout=60  # 60 second timeout to prevent hanging
+                )
             
             # Restore original directory
             os.chdir(original_dir)
