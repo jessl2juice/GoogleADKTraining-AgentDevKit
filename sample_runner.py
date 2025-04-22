@@ -48,12 +48,15 @@ class SampleRunner:
                     # Read first few lines of the file to get a description
                     description = self._extract_description(file_path)
                     
-                    # Get sample name (filename without extension)
-                    name = os.path.splitext(file)[0]
+                    # Get base sample name (filename without extension)
+                    base_name = os.path.splitext(file)[0]
+                    
+                    # Create a more descriptive name based on the path and type of sample
+                    descriptive_name = self._create_descriptive_name(base_name, file_path, relative_path)
                     
                     # Add to samples list
                     samples.append({
-                        "name": name,
+                        "name": descriptive_name,
                         "path": file_path,
                         "relative_path": relative_path,
                         "description": description
@@ -233,6 +236,66 @@ print("Module setup completed")
         
         return result
     
+    def _create_descriptive_name(self, base_name, file_path, relative_path):
+        """
+        Create a more descriptive name for the sample based on its type and purpose.
+        
+        Args:
+            base_name (str): Original file name without extension
+            file_path (str): Full path to the sample file
+            relative_path (str): Path relative to samples directory
+            
+        Returns:
+            str: A more descriptive name for the sample
+        """
+        # Define sample type prefixes based on path
+        agent_types = {
+            "RAG": "RAG",
+            "data-science": "Data Science",
+            "customer-service": "Customer Service",
+            "brand-search-optimization": "Brand Search"
+        }
+        
+        # Define function type identifiers
+        function_types = {
+            "agent.py": "Agent",
+            "deploy.py": "Deploy",
+            "run.py": "Run",
+            "test_eval.py": "Evaluate",
+            "eval.py": "Evaluate",
+            "test_": "Test",
+            "bq_populate_data.py": "BQ Data Loader"
+        }
+        
+        # Extract agent type from path
+        agent_type = "Sample"
+        for key, value in agent_types.items():
+            if key in relative_path:
+                agent_type = value
+                break
+        
+        # Extract function type from filename
+        function_type = ""
+        for key, value in function_types.items():
+            if key in os.path.basename(file_path):
+                function_type = value
+                break
+                
+        # If no specific function type was found
+        if not function_type:
+            if "deployment" in relative_path:
+                function_type = "Deploy"
+            elif "eval" in relative_path:
+                function_type = "Evaluate"
+            elif "test" in relative_path:
+                function_type = "Test"
+            else:
+                # Use capitalized base name as fallback
+                function_type = base_name.capitalize()
+        
+        # Combine for final name
+        return f"{agent_type} {function_type}"
+        
     def _extract_description(self, file_path):
         """
         Extract a description from the sample file comments and enhance it with
