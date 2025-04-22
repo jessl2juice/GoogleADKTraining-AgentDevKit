@@ -244,17 +244,45 @@ print("Module setup completed")
         Returns:
             str: Enhanced description of the sample
         """
-        # Custom descriptions for well-known samples
+        # Comprehensive custom descriptions for all samples
         custom_descriptions = {
-            "agents/RAG/rag/agent.py": "RAG Agent: Retrieval-Augmented Generation using Google's Vertex AI. Requires Google Cloud Project and Vertex AI API credentials.",
-            "agents/RAG/deployment/deploy.py": "RAG Deployment: Deploys RAG agent to Google Cloud. Requires Google Cloud Project with Vertex AI Agent Builder enabled.",
-            "agents/RAG/deployment/run.py": "RAG Runner: Runs a deployed RAG agent. Requires Google Cloud Project ID and deployed agent credentials.",
-            "agents/RAG/eval/test_eval.py": "RAG Evaluation: Tests RAG agent capabilities. Requires Google Cloud Project with Vertex AI permissions.",
-            "agents/data-science/data_science/agent.py": "Data Science Agent: Analyzes data using SQL and Python. Requires Google Cloud Project with BigQuery API enabled.",
-            "agents/data-science/deployment/deploy.py": "Data Science Agent Deployment: Deploys agent to Google Cloud. Requires GCP Project with Agent Builder.",
-            "agents/customer-service/customer_service/agent.py": "Customer Service Agent: Handles customer inquiries. Requires Google Cloud Project with Vertex AI permissions.",
-            "agents/brand-search-optimization/brand_search_optimization/agent.py": "Brand Search Agent: Optimizes search results for brands. Requires GCP Project and Vertex AI API."
+            # RAG Agents
+            "agents/RAG/rag/agent.py": "RAG Agent: Creates a retrieval-augmented generation agent that answers questions using your data. When run: Shows agent setup and test conversation. Requires: Google Cloud Project and Vertex AI.",
+            "agents/RAG/deployment/deploy.py": "RAG Deployment: Deploys retrieval agent to Google Cloud for production use. When run: Creates and configures agent in your GCP. Requires: GCP with Vertex AI Agent Builder.",
+            "agents/RAG/deployment/run.py": "RAG Runner: Tests a deployed RAG agent with sample queries. When run: Shows conversation with your deployed agent. Requires: GCP Project and deployed agent ID.",
+            "agents/RAG/eval/test_eval.py": "RAG Evaluation: Tests RAG agent's accuracy on predefined questions. When run: Displays evaluation metrics and scores. Requires: GCP with Vertex AI permissions.",
+            
+            # Data Science Agents
+            "agents/data-science/data_science/agent.py": "Data Science Agent: Performs data analysis using SQL and Python. When run: Executes sample queries and shows analysis results. Requires: GCP with BigQuery API.",
+            "agents/data-science/deployment/deploy.py": "Data Science Deployment: Publishes data analysis agent to Google Cloud. When run: Creates configured agent in your GCP. Requires: GCP with Agent Builder.",
+            "agents/data-science/deployment/test_deployment.py": "Data Science Deployment Test: Verifies successful agent deployment. When run: Tests agent functionality in cloud. Requires: GCP with deployed agent.",
+            "agents/data-science/eval/test_eval.py": "Data Science Evaluation: Tests data agent with analytical queries. When run: Shows query results and performance metrics. Requires: GCP with Vertex AI.",
+            "agents/data-science/tests/test_agents.py": "Data Science Agent Tests: Unit tests for data analysis agent. When run: Executes test suite and reports results. Requires: GCP with test data.",
+            
+            # Customer Service Agents
+            "agents/customer-service/customer_service/agent.py": "Customer Service Agent: Handles customer inquiries and support tickets. When run: Demonstrates support conversation. Requires: GCP with Vertex AI.",
+            "agents/customer-service/deployment/deploy.py": "Customer Service Deployment: Deploys support agent to your cloud. When run: Creates agent in GCP for your application. Requires: GCP with Agent Builder.",
+            "agents/customer-service/eval/test_eval.py": "Customer Service Evaluation: Tests agent's responses to support queries. When run: Shows conversation testing with metrics. Requires: GCP with Vertex AI.",
+            
+            # Brand Search Optimization
+            "agents/brand-search-optimization/brand_search_optimization/agent.py": "Brand Search Agent: Optimizes search results for brand queries. When run: Demonstrates search optimization. Requires: GCP and Vertex AI.",
+            "agents/brand-search-optimization/deployment/bq_populate_data.py": "Brand Search Data Loader: Populates BigQuery with sample brand data. When run: Creates and fills BigQuery tables. Requires: GCP with BigQuery access.",
+            "agents/brand-search-optimization/deployment/deploy.py": "Brand Search Deployment: Deploys search optimization agent. When run: Publishes agent to your GCP. Requires: GCP with Agent Builder.",
+            "agents/brand-search-optimization/eval/eval.py": "Brand Search Evaluation: Tests search optimization effectiveness. When run: Shows performance metrics on test queries. Requires: GCP with Vertex AI."
         }
+        
+        # Handle specific Python files that aren't meant to be directly run
+        not_runnable_files = {
+            "__init__.py": "Module initialization file. Not meant to be run directly.",
+            "prompts.py": "Contains prompt templates for agent instructions. Not meant to be run directly.",
+            "config.py": "Configuration settings for agent environment. Not meant to be run directly.",
+            "tools.py": "Defines agent tools and capabilities. Not meant to be run directly."
+        }
+        
+        # Check if it's a non-runnable file type
+        file_name = os.path.basename(file_path)
+        if file_name in not_runnable_files:
+            return not_runnable_files[file_name]
         
         # Extract file path relative to samples directory
         relative_path = None
@@ -267,63 +295,18 @@ print("Module setup completed")
         if relative_path and relative_path in custom_descriptions:
             return custom_descriptions[relative_path]
             
-        # Default description extraction logic
-        description = "No description available"
-        
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                lines = f.readlines()[:20]  # Read first 20 lines
-                
-                # Look for docstring or commented description
-                docstring_started = False
-                docstring_lines = []
-                
-                for line in lines:
-                    line = line.strip()
-                    
-                    # Skip copyright notices
-                    if "copyright" in line.lower() or "license" in line.lower():
-                        continue
-                        
-                    # Check for docstrings
-                    if line.startswith('"""') or line.startswith("'''"):
-                        if docstring_started:
-                            docstring_started = False
-                            break
-                        else:
-                            docstring_started = True
-                            # Extract content after the opening quotes
-                            content = line[3:].strip()
-                            if content:
-                                docstring_lines.append(content)
-                    elif docstring_started:
-                        if line.endswith('"""') or line.endswith("'''"):
-                            docstring_started = False
-                            content = line[:-3].strip()
-                            if content:
-                                docstring_lines.append(content)
-                        else:
-                            docstring_lines.append(line)
-                    # Check for commented description
-                    elif line.startswith('#'):
-                        content = line[1:].strip()
-                        if "copyright" not in content.lower() and "license" not in content.lower() and content:
-                            docstring_lines.append(content)
-                
-                if docstring_lines:
-                    description = ' '.join(docstring_lines)
-                    
-                    # Add API credential info for samples that look like they need it
-                    if "agent" in file_path.lower() and "requires" not in description.lower():
-                        description += " Requires Google Cloud Project credentials."
-                    
-                    # Limit description length
-                    if len(description) > 120:
-                        description = description[:117] + "..."
-        except Exception as e:
-            logger.error(f"Error extracting description from {file_path}: {e}")
-        
-        return description
+        # For any unknown samples, give a more useful generic description based on path
+        if "deployment" in file_path:
+            return "Agent Deployment Script: Deploys an agent to Google Cloud. When run: Creates cloud resources. Requires: Google Cloud Project credentials."
+        elif "eval" in file_path:
+            return "Agent Evaluation: Tests agent performance and accuracy. When run: Shows test results and metrics. Requires: Google Cloud Project credentials."
+        elif "agent" in file_path:
+            return "AI Agent: Performs specialized tasks using Google's Vertex AI. When run: Demonstrates agent capabilities. Requires: Google Cloud Project credentials."
+        elif "test" in file_path:
+            return "Test Script: Validates agent functionality. When run: Executes tests and shows results. Requires: Google Cloud Project credentials."
+            
+        # Default description that avoids copyright text
+        return "ADK Sample Script: Demonstrates ADK functionality. When run: Shows sample execution. Requires: Google Cloud Project credentials."
     
     def _get_source_code(self, file_path):
         """

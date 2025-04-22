@@ -74,6 +74,14 @@ def run_sample():
         flash("No sample selected", "warning")
         return redirect(url_for('index'))
     
+    # Check if the file is a non-runnable type
+    non_runnable_files = ['__init__.py', 'prompts.py', 'config.py', 'tools.py']
+    file_name = os.path.basename(sample_path)
+    
+    if file_name in non_runnable_files:
+        flash(f"{file_name} is not meant to be run directly. Please choose another sample.", "warning")
+        return redirect(url_for('index'))
+    
     try:
         result = sample_runner.run_sample(sample_path)
         session['last_sample_result'] = result
