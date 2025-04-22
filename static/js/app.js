@@ -17,7 +17,47 @@ document.addEventListener('DOMContentLoaded', function() {
     if (typeof Prism !== 'undefined') {
         Prism.highlightAll();
     }
+    
+    // Add sample search functionality
+    const searchInput = document.getElementById('sampleSearch');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function() {
+            filterSamples();
+        });
+    }
 });
+
+/**
+ * Filter samples based on search input
+ */
+function filterSamples() {
+    const searchInput = document.getElementById('sampleSearch');
+    const searchText = searchInput.value.toLowerCase();
+    const sampleRows = document.querySelectorAll('#samplesTable tbody tr');
+    
+    sampleRows.forEach(row => {
+        const name = row.querySelector('td:first-child').textContent.toLowerCase();
+        const description = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+        
+        if (name.includes(searchText) || description.includes(searchText)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+    
+    // Show message if no results
+    const noResultsMessage = document.getElementById('noSamplesFound');
+    const visibleRows = document.querySelectorAll('#samplesTable tbody tr:not([style*="display: none"])');
+    
+    if (noResultsMessage) {
+        if (visibleRows.length === 0 && searchText.length > 0) {
+            noResultsMessage.style.display = '';
+        } else {
+            noResultsMessage.style.display = 'none';
+        }
+    }
+}
 
 /**
  * Check if all required dependencies for ADK are installed

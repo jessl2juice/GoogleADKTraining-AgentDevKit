@@ -235,14 +235,39 @@ print("Module setup completed")
     
     def _extract_description(self, file_path):
         """
-        Extract a description from the sample file comments.
+        Extract a description from the sample file comments and enhance it with
+        API credential requirements and functionality.
         
         Args:
             file_path (str): Path to the sample file
             
         Returns:
-            str: Description of the sample
+            str: Enhanced description of the sample
         """
+        # Custom descriptions for well-known samples
+        custom_descriptions = {
+            "agents/RAG/rag/agent.py": "RAG Agent: Retrieval-Augmented Generation using Google's Vertex AI. Requires Google Cloud Project and Vertex AI API credentials.",
+            "agents/RAG/deployment/deploy.py": "RAG Deployment: Deploys RAG agent to Google Cloud. Requires Google Cloud Project with Vertex AI Agent Builder enabled.",
+            "agents/RAG/deployment/run.py": "RAG Runner: Runs a deployed RAG agent. Requires Google Cloud Project ID and deployed agent credentials.",
+            "agents/RAG/eval/test_eval.py": "RAG Evaluation: Tests RAG agent capabilities. Requires Google Cloud Project with Vertex AI permissions.",
+            "agents/data-science/data_science/agent.py": "Data Science Agent: Analyzes data using SQL and Python. Requires Google Cloud Project with BigQuery API enabled.",
+            "agents/data-science/deployment/deploy.py": "Data Science Agent Deployment: Deploys agent to Google Cloud. Requires GCP Project with Agent Builder.",
+            "agents/customer-service/customer_service/agent.py": "Customer Service Agent: Handles customer inquiries. Requires Google Cloud Project with Vertex AI permissions.",
+            "agents/brand-search-optimization/brand_search_optimization/agent.py": "Brand Search Agent: Optimizes search results for brands. Requires GCP Project and Vertex AI API."
+        }
+        
+        # Extract file path relative to samples directory
+        relative_path = None
+        for key in custom_descriptions.keys():
+            if key in file_path:
+                relative_path = key
+                break
+                
+        # Use custom description if available
+        if relative_path and relative_path in custom_descriptions:
+            return custom_descriptions[relative_path]
+            
+        # Default description extraction logic
         description = "No description available"
         
         try:
@@ -256,6 +281,10 @@ print("Module setup completed")
                 for line in lines:
                     line = line.strip()
                     
+                    # Skip copyright notices
+                    if "copyright" in line.lower() or "license" in line.lower():
+                        continue
+                        
                     # Check for docstrings
                     if line.startswith('"""') or line.startswith("'''"):
                         if docstring_started:
@@ -278,15 +307,19 @@ print("Module setup completed")
                     # Check for commented description
                     elif line.startswith('#'):
                         content = line[1:].strip()
-                        if content:
+                        if "copyright" not in content.lower() and "license" not in content.lower() and content:
                             docstring_lines.append(content)
                 
                 if docstring_lines:
                     description = ' '.join(docstring_lines)
                     
+                    # Add API credential info for samples that look like they need it
+                    if "agent" in file_path.lower() and "requires" not in description.lower():
+                        description += " Requires Google Cloud Project credentials."
+                    
                     # Limit description length
-                    if len(description) > 100:
-                        description = description[:97] + "..."
+                    if len(description) > 120:
+                        description = description[:117] + "..."
         except Exception as e:
             logger.error(f"Error extracting description from {file_path}: {e}")
         
