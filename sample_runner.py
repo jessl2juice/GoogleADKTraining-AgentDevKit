@@ -100,11 +100,14 @@ class SampleRunner:
             os.chdir(sample_dir)
             
             # Handle samples with relative imports
-            if 'RAG/rag/agent.py' in sample_path or 'agents/RAG/rag/agent.py' in sample_path or 'keyword_finding/agent.py' in sample_path or 'sub_agents' in sample_path:
+            if ('RAG/rag/agent.py' in sample_path or 'agents/RAG/rag/agent.py' in sample_path 
+                or 'keyword_finding/agent.py' in sample_path or 'sub_agents' in sample_path
+                or 'brand-search-optimization/brand_search_optimization/agent.py' in sample_path
+                or 'brand_search_optimization/agent.py' in sample_path):
                 # Create a temporary file that imports the module correctly
                 temp_file = os.path.join(sample_dir, 'run_sample_temp.py')
                 with open(temp_file, 'w') as f:
-                    f.write('''
+                    template = '''
 import sys
 import os
 
@@ -116,13 +119,30 @@ try:
     from google.adk import Agent, Tool
     from google.adk.tools.retrieval.vertex_ai_rag_retrieval import VertexAiRagRetrieval
     print("Successfully imported ADK modules")
-    from prompts import return_instructions_root
-    print("Successfully imported prompt module")
+    
+    # Special case for Brand Search Optimization samples
+    if "brand-search-optimization" in os.path.abspath(__file__) or "brand_search_optimization" in os.path.abspath(__file__):
+        print("Setting up Brand Search Optimization imports")
+        # Get the correct path
+        brand_search_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        if brand_search_path not in sys.path:
+            sys.path.insert(0, brand_search_path)
+        try:
+            # Try absolute imports instead of relative
+            import brand_search_optimization.shared_libraries.constants
+            print("Successfully imported brand search modules")
+        except Exception as e:
+            print(f"Brand search module import error: {e}")
+    else:
+        # Default import for most other agents
+        from prompts import return_instructions_root
+        print("Successfully imported prompt module")
 except Exception as e:
     print(f"Import error: {e}")
 
 print("Module imports completed")
-''')
+'''
+                    f.write(template)
                 process = subprocess.run(
                     [sys.executable, 'run_sample_temp.py'],
                     capture_output=True,
