@@ -1,0 +1,284 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <div class="card bg-dark">
+            <div class="card-body">
+                <h1 class="card-title">
+                    <i class="fas fa-robot me-2"></i>
+                    Agent Details: {{ agent.name }}
+                </h1>
+                <p class="card-text">
+                    View details and manage your deployed agent.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card mb-4">
+            <div class="card-header bg-dark">
+                <h3>
+                    <i class="fas fa-info-circle me-2"></i>
+                    Agent Information
+                </h3>
+            </div>
+            <div class="card-body">
+                {% for category, message in get_flashed_messages(with_categories=true) %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+                
+                <div class="table-responsive">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th>Agent Name:</th>
+                                <td>{{ agent.name }}</td>
+                            </tr>
+                            <tr>
+                                <th>Agent Type:</th>
+                                <td>{{ agent.type }}</td>
+                            </tr>
+                            <tr>
+                                <th>Description:</th>
+                                <td>{{ agent.description or 'No description provided' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Agent ID:</th>
+                                <td><code>{{ agent.id }}</code></td>
+                            </tr>
+                            <tr>
+                                <th>Status:</th>
+                                <td>
+                                    {% if agent.status == 'active' %}
+                                    <span class="badge bg-success">Active</span>
+                                    {% elif agent.status == 'deploying' %}
+                                    <span class="badge bg-warning">Deploying</span>
+                                    {% elif agent.status == 'failed' %}
+                                    <span class="badge bg-danger">Failed</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Project ID:</th>
+                                <td>{{ agent.project_id }}</td>
+                            </tr>
+                            <tr>
+                                <th>Location:</th>
+                                <td>{{ agent.location }}</td>
+                            </tr>
+                            <tr>
+                                <th>Deployed At:</th>
+                                <td>{{ agent.deployed_at }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header bg-dark">
+                <h3>
+                    <i class="fas fa-sliders-h me-2"></i>
+                    Agent Configuration
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-cogs me-2"></i>
+                                    General Settings
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Logging Enabled
+                                        {% if agent.config.enable_logging %}
+                                        <span class="badge bg-success rounded-pill"><i class="fas fa-check"></i></span>
+                                        {% else %}
+                                        <span class="badge bg-danger rounded-pill"><i class="fas fa-times"></i></span>
+                                        {% endif %}
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Webhooks Enabled
+                                        {% if agent.config.enable_webhooks %}
+                                        <span class="badge bg-success rounded-pill"><i class="fas fa-check"></i></span>
+                                        {% else %}
+                                        <span class="badge bg-danger rounded-pill"><i class="fas fa-times"></i></span>
+                                        {% endif %}
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Public Access
+                                        {% if agent.config.public_access %}
+                                        <span class="badge bg-success rounded-pill"><i class="fas fa-check"></i></span>
+                                        {% else %}
+                                        <span class="badge bg-danger rounded-pill"><i class="fas fa-times"></i></span>
+                                        {% endif %}
+                                    </li>
+                                    {% if agent.config.webhook_url %}
+                                    <li class="list-group-item">
+                                        <strong>Webhook URL:</strong><br>
+                                        <code>{{ agent.config.webhook_url }}</code>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-database me-2"></i>
+                                    Data Configuration
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                {% if agent.type == 'rag' %}
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">
+                                        <strong>Data Source:</strong><br>
+                                        {{ agent.config.data_source|capitalize }}
+                                    </li>
+                                    <li class="list-group-item">
+                                        <strong>Data Location:</strong><br>
+                                        <code>{{ agent.config.data_location }}</code>
+                                    </li>
+                                </ul>
+                                {% elif agent.type == 'data_science' %}
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">
+                                        <strong>BigQuery Dataset:</strong><br>
+                                        <code>{{ agent.config.bigquery_dataset }}</code>
+                                    </li>
+                                </ul>
+                                {% elif agent.type == 'customer_service' %}
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">
+                                        <strong>Knowledge Base:</strong><br>
+                                        <code>{{ agent.config.knowledge_base }}</code>
+                                    </li>
+                                </ul>
+                                {% elif agent.type == 'brand_search' %}
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">
+                                        <strong>Brand Data:</strong><br>
+                                        <code>{{ agent.config.brand_data }}</code>
+                                    </li>
+                                </ul>
+                                {% else %}
+                                <div class="alert alert-info">
+                                    No specific data configurations for this agent type.
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header bg-dark">
+                <h3>
+                    <i class="fas fa-code me-2"></i>
+                    Integration
+                </h3>
+            </div>
+            <div class="card-body">
+                <p>Use the following code to integrate this agent into your applications:</p>
+                <pre class="bg-dark text-light p-3"><code>from google.adk import Agent
+
+# Initialize the agent
+agent = Agent(
+    project_id="{{ agent.project_id }}",
+    location="{{ agent.location }}",
+    agent_id="{{ agent.id }}"
+)
+
+# Send a request to the agent
+response = agent.generate_content("Your query here")
+print(response)</code></pre>
+
+                {% if agent.config.public_access and agent.access_url %}
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-link me-2"></i>
+                    <strong>Access URL:</strong> 
+                    <a href="{{ agent.access_url }}" target="_blank" class="alert-link">{{ agent.access_url }}</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header bg-dark">
+                <h3>
+                    <i class="fas fa-chart-line me-2"></i>
+                    Metrics
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card text-center mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Requests</h5>
+                                <p class="card-text display-4">{{ agent.metrics.requests|default(0) }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Avg Response Time</h5>
+                                <p class="card-text display-4">{{ agent.metrics.avg_response_time|default(0) }}ms</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Errors</h5>
+                                <p class="card-text display-4">{{ agent.metrics.errors|default(0) }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Detailed metrics and logs are available in your Google Cloud Console.
+                </div>
+            </div>
+        </div>
+        
+        <div class="d-grid gap-2">
+            <a href="{{ url_for('deploy_agent_view') }}" class="btn btn-primary">
+                <i class="fas fa-list me-1"></i>
+                Back to Deployed Agents
+            </a>
+            <a href="{{ url_for('delete_agent', agent_id=agent.id) }}" class="btn btn-danger" 
+               onclick="return confirm('Are you sure you want to delete this agent?');">
+                <i class="fas fa-trash me-1"></i>
+                Delete Agent
+            </a>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                <i class="fas fa-home me-1"></i>
+                Back to Home
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

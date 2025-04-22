@@ -1,0 +1,122 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <div class="card bg-dark">
+            <div class="card-body">
+                <h1 class="card-title">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Deployment Successful
+                </h1>
+                <p class="card-text">
+                    Your agent has been successfully deployed to Google Cloud.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card mb-4">
+            <div class="card-header bg-dark">
+                <h3>
+                    <i class="fas fa-rocket me-2"></i>
+                    Agent Deployment Details
+                </h3>
+            </div>
+            <div class="card-body">
+                {% for category, message in get_flashed_messages(with_categories=true) %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+                
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Your agent "{{ agent.name }}" has been successfully deployed!
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th>Agent Name:</th>
+                                <td>{{ agent.name }}</td>
+                            </tr>
+                            <tr>
+                                <th>Agent Type:</th>
+                                <td>{{ agent.type }}</td>
+                            </tr>
+                            <tr>
+                                <th>Agent ID:</th>
+                                <td><code>{{ agent.id }}</code></td>
+                            </tr>
+                            <tr>
+                                <th>Status:</th>
+                                <td>
+                                    <span class="badge bg-success">Active</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Deployed At:</th>
+                                <td>{{ agent.deployed_at }}</td>
+                            </tr>
+                            <tr>
+                                <th>Access URL:</th>
+                                <td>
+                                    {% if agent.access_url %}
+                                    <a href="{{ agent.access_url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-external-link-alt me-1"></i>
+                                        Open Agent
+                                    </a>
+                                    {% else %}
+                                    <span class="text-muted">Not publicly accessible</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-code me-2"></i>
+                            Integration Code
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Use the following code to integrate this agent into your applications:</p>
+                        <pre class="bg-dark text-light p-3"><code>from google.adk import Agent
+
+# Initialize the agent
+agent = Agent(
+    project_id="{{ agent.project_id }}",
+    location="{{ agent.location }}",
+    agent_id="{{ agent.id }}"
+)
+
+# Send a request to the agent
+response = agent.generate_content("Your query here")
+print(response)</code></pre>
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-2 mt-4">
+                    <a href="{{ url_for('deploy_agent_view') }}" class="btn btn-primary">
+                        <i class="fas fa-list me-1"></i>
+                        Back to Deployed Agents
+                    </a>
+                    <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                        <i class="fas fa-home me-1"></i>
+                        Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

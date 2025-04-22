@@ -1,0 +1,279 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <div class="card bg-dark">
+            <div class="card-body">
+                <h1 class="card-title">
+                    <i class="fas fa-rocket me-2"></i>
+                    Deploy Agents to Production
+                </h1>
+                <p class="card-text">
+                    Deploy your ADK agents to Google Cloud for production use. This feature allows you to select 
+                    a tested agent and deploy it to your Google Cloud project with proper configurations.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card mb-4">
+            <div class="card-header bg-dark">
+                <h3>
+                    <i class="fas fa-cloud-upload-alt me-2"></i>
+                    Deploy Agent
+                </h3>
+            </div>
+            <div class="card-body">
+                {% for category, message in get_flashed_messages(with_categories=true) %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Deploying an agent requires Google Cloud credentials with Vertex AI Agent Builder, IAM, and API permissions.
+                    Make sure you have <a href="{{ url_for('cloud_credentials') }}">configured your cloud credentials</a> before proceeding.
+                </div>
+
+                <form action="{{ url_for('deploy_agent') }}" method="post">
+                    <div class="mb-3">
+                        <label for="agent_type" class="form-label">Agent Type</label>
+                        <select class="form-select" id="agent_type" name="agent_type" required>
+                            <option value="" selected disabled>Select an agent type</option>
+                            <option value="rag">RAG (Retrieval-Augmented Generation)</option>
+                            <option value="data_science">Data Science</option>
+                            <option value="customer_service">Customer Service</option>
+                            <option value="brand_search">Brand Search Optimization</option>
+                        </select>
+                        <div class="form-text">Select the type of agent you want to deploy</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="agent_name" class="form-label">Agent Name</label>
+                        <input type="text" class="form-control" id="agent_name" name="agent_name" required>
+                        <div class="form-text">A unique name for your deployed agent</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="agent_description" class="form-label">Agent Description</label>
+                        <textarea class="form-control" id="agent_description" name="agent_description" rows="3"></textarea>
+                        <div class="form-text">Optional description of what your agent does</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Agent Configuration</label>
+                        <div class="card p-3">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="enable_logging" name="enable_logging" checked>
+                                <label class="form-check-label" for="enable_logging">
+                                    Enable conversation logging
+                                </label>
+                            </div>
+                            
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="enable_webhooks" name="enable_webhooks">
+                                <label class="form-check-label" for="enable_webhooks">
+                                    Enable webhook integration
+                                </label>
+                            </div>
+                            
+                            <div id="webhook_url_container" class="mb-3 ms-4 d-none">
+                                <label for="webhook_url" class="form-label">Webhook URL</label>
+                                <input type="url" class="form-control" id="webhook_url" name="webhook_url">
+                                <div class="form-text">URL to receive agent events</div>
+                            </div>
+                            
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="public_access" name="public_access">
+                                <label class="form-check-label" for="public_access">
+                                    Allow public access (otherwise private to your project)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3" id="rag_config" style="display: none;">
+                        <label class="form-label">RAG-Specific Configuration</label>
+                        <div class="card p-3">
+                            <div class="mb-3">
+                                <label for="data_source" class="form-label">Data Source</label>
+                                <select class="form-select" id="data_source" name="data_source">
+                                    <option value="cloud_storage">Cloud Storage</option>
+                                    <option value="bigquery">BigQuery</option>
+                                    <option value="firestore">Firestore</option>
+                                </select>
+                                <div class="form-text">Select the data source for your RAG agent</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="data_location" class="form-label">Data Location</label>
+                                <input type="text" class="form-control" id="data_location" name="data_location" placeholder="gs://your-bucket/path or project.dataset.table">
+                                <div class="form-text">Location of your data (bucket path or database identifier)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3" id="data_science_config" style="display: none;">
+                        <label class="form-label">Data Science-Specific Configuration</label>
+                        <div class="card p-3">
+                            <div class="mb-3">
+                                <label for="bigquery_dataset" class="form-label">BigQuery Dataset</label>
+                                <input type="text" class="form-control" id="bigquery_dataset" name="bigquery_dataset">
+                                <div class="form-text">The BigQuery dataset for your data science agent to analyze</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3" id="customer_service_config" style="display: none;">
+                        <label class="form-label">Customer Service-Specific Configuration</label>
+                        <div class="card p-3">
+                            <div class="mb-3">
+                                <label for="knowledge_base" class="form-label">Knowledge Base</label>
+                                <input type="text" class="form-control" id="knowledge_base" name="knowledge_base">
+                                <div class="form-text">ID or path of your knowledge base for customer service responses</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3" id="brand_search_config" style="display: none;">
+                        <label class="form-label">Brand Search-Specific Configuration</label>
+                        <div class="card p-3">
+                            <div class="mb-3">
+                                <label for="brand_data" class="form-label">Brand Data</label>
+                                <input type="text" class="form-control" id="brand_data" name="brand_data">
+                                <div class="form-text">Location of your brand data for search optimization</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary" id="deployBtn">
+                            <i class="fas fa-cloud-upload-alt me-1"></i>
+                            Deploy Agent
+                        </button>
+                        <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>
+                            Back to Home
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-header bg-dark">
+                <h3>
+                    <i class="fas fa-list me-2"></i>
+                    Deployed Agents
+                </h3>
+            </div>
+            <div class="card-body">
+                {% if deployed_agents %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Deployed</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for agent in deployed_agents %}
+                            <tr>
+                                <td>{{ agent.name }}</td>
+                                <td>{{ agent.type }}</td>
+                                <td>
+                                    {% if agent.status == 'active' %}
+                                    <span class="badge bg-success">Active</span>
+                                    {% elif agent.status == 'deploying' %}
+                                    <span class="badge bg-warning">Deploying</span>
+                                    {% elif agent.status == 'failed' %}
+                                    <span class="badge bg-danger">Failed</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ agent.deployed_at }}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{{ url_for('view_agent', agent_id=agent.id) }}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('delete_agent', agent_id=agent.id) }}" class="btn btn-sm btn-danger" 
+                                           onclick="return confirm('Are you sure you want to delete this agent?');">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No agents have been deployed yet. Use the form above to deploy your first agent.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Show/hide agent type specific configuration sections
+    const agentTypeSelect = document.getElementById('agent_type');
+    const ragConfig = document.getElementById('rag_config');
+    const dataScienceConfig = document.getElementById('data_science_config');
+    const customerServiceConfig = document.getElementById('customer_service_config');
+    const brandSearchConfig = document.getElementById('brand_search_config');
+    
+    agentTypeSelect.addEventListener('change', function() {
+        // Hide all configuration sections
+        ragConfig.style.display = 'none';
+        dataScienceConfig.style.display = 'none';
+        customerServiceConfig.style.display = 'none';
+        brandSearchConfig.style.display = 'none';
+        
+        // Show the selected configuration section
+        const selectedType = this.value;
+        if (selectedType === 'rag') {
+            ragConfig.style.display = 'block';
+        } else if (selectedType === 'data_science') {
+            dataScienceConfig.style.display = 'block';
+        } else if (selectedType === 'customer_service') {
+            customerServiceConfig.style.display = 'block';
+        } else if (selectedType === 'brand_search') {
+            brandSearchConfig.style.display = 'block';
+        }
+    });
+    
+    // Show/hide webhook URL input based on checkbox
+    const enableWebhooks = document.getElementById('enable_webhooks');
+    const webhookUrlContainer = document.getElementById('webhook_url_container');
+    
+    enableWebhooks.addEventListener('change', function() {
+        if (this.checked) {
+            webhookUrlContainer.classList.remove('d-none');
+        } else {
+            webhookUrlContainer.classList.add('d-none');
+        }
+    });
+});
+</script>
+{% endblock %}

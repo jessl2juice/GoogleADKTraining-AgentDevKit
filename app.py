@@ -1,11 +1,13 @@
 import os
 import logging
+import datetime
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, session
 import subprocess
 import json
 import sys
 import adk_setup
 from sample_runner import SampleRunner
+from deploy_agent import DeploymentManager
 
 # Setup logging
 logging.basicConfig(level=logging.DEBUG)
@@ -18,6 +20,7 @@ app.secret_key = os.environ.get("SESSION_SECRET", "adk_training_secret_key")
 # Global variables
 ADK_SAMPLES_PATH = os.path.join(os.getcwd(), "adk-samples")
 sample_runner = None
+deployment_manager = DeploymentManager()
 
 @app.route('/')
 def index():
@@ -166,6 +169,90 @@ def cloud_credentials():
             logger.error(f"Error reading .env file: {e}")
     
     return render_template('cloud_credentials.html', credentials=credentials)
+
+@app.route('/deploy')
+def deploy_agent_view():
+    """Show the agent deployment page."""
+    # Get all deployed agents
+    deployed_agents = deployment_manager.get_all_agents()
+    return render_template('deploy/index.html', deployed_agents=deployed_agents)
+
+@app.route('/deploy/agent', methods=['POST'])
+def deploy_agent():
+    """Deploy an agent to production."""
+    try:
+        # Get form data
+        agent_type = request.form.get('agent_type')
+        agent_name = request.form.get('agent_name')
+        agent_description = request.form.get('agent_description', '')
+        
+        # Validate basic inputs
+        if not agent_type or not agent_name:
+            flash("Agent type and name are required", "danger")
+            return redirect(url_for('deploy_agent_view'))
+        
+        # Build agent configuration
+        config = {
+            'enable_logging': 'enable_logging' in request.form,
+            'enable_webhooks': 'enable_webhooks' in request.form,
+            'public_access': 'public_access' in request.form,
+        }
+        
+        # Add webhook URL if enabled
+        if config['enable_webhooks']:
+            config['webhook_url'] = request.form.get('webhook_url', '')
+        
+        # Add type-specific configurations
+        if agent_type == 'rag':
+            config['data_source'] = request.form.get('data_source', '')
+            config['data_location'] = request.form.get('data_location', '')
+        elif agent_type == 'data_science':
+            config['bigquery_dataset'] = request.form.get('bigquery_dataset', '')
+        elif agent_type == 'customer_service':
+            config['knowledge_base'] = request.form.get('knowledge_base', '')
+        elif agent_type == 'brand_search':
+            config['brand_data'] = request.form.get('brand_data', '')
+        
+        # Deploy the agent
+        agent = deployment_manager.deploy_agent(
+            name=agent_name,
+            agent_type=agent_type,
+            description=agent_description,
+            config=config
+        )
+        
+        # Show success page
+        return render_template('deploy/success.html', agent=agent)
+        
+    except Exception as e:
+        logger.exception("Error deploying agent")
+        flash(f"Error deploying agent: {str(e)}", "danger")
+        return redirect(url_for('deploy_agent_view'))
+
+@app.route('/deploy/agent/<agent_id>')
+def view_agent(agent_id):
+    """View a deployed agent's details."""
+    agent = deployment_manager.get_agent(agent_id)
+    if not agent:
+        flash("Agent not found", "danger")
+        return redirect(url_for('deploy_agent_view'))
+    
+    return render_template('deploy/view.html', agent=agent)
+
+@app.route('/deploy/agent/<agent_id>/delete')
+def delete_agent(agent_id):
+    """Delete a deployed agent."""
+    try:
+        success = deployment_manager.delete_agent(agent_id)
+        if success:
+            flash("Agent deleted successfully", "success")
+        else:
+            flash("Agent not found", "danger")
+    except Exception as e:
+        logger.exception("Error deleting agent")
+        flash(f"Error deleting agent: {str(e)}", "danger")
+    
+    return redirect(url_for('deploy_agent_view'))
 
 # Initialize sample runner if ADK samples are already available
 if os.path.exists(ADK_SAMPLES_PATH):
