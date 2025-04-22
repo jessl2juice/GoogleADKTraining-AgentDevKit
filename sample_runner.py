@@ -239,6 +239,7 @@ print("Module setup completed")
     def _create_descriptive_name(self, base_name, file_path, relative_path):
         """
         Create a more descriptive name for the sample based on its type and purpose.
+        Ensures names are unique and descriptive.
         
         Args:
             base_name (str): Original file name without extension
@@ -246,7 +247,7 @@ print("Module setup completed")
             relative_path (str): Path relative to samples directory
             
         Returns:
-            str: A more descriptive name for the sample
+            str: A unique descriptive name for the sample
         """
         # Define sample type prefixes based on path
         agent_types = {
@@ -260,10 +261,9 @@ print("Module setup completed")
         function_types = {
             "agent.py": "Agent",
             "deploy.py": "Deploy",
-            "run.py": "Run",
-            "test_eval.py": "Evaluate",
-            "eval.py": "Evaluate",
-            "test_": "Test",
+            "run.py": "Runner",
+            "test_eval.py": "Evaluator",
+            "eval.py": "Evaluator",
             "bq_populate_data.py": "BQ Data Loader"
         }
         
@@ -284,17 +284,40 @@ print("Module setup completed")
         # If no specific function type was found
         if not function_type:
             if "deployment" in relative_path:
-                function_type = "Deploy"
+                function_type = "Deployer"
             elif "eval" in relative_path:
-                function_type = "Evaluate"
-            elif "test" in relative_path:
-                function_type = "Test"
+                function_type = "Evaluator"
+            elif "test" in relative_path and "test_" in os.path.basename(file_path):
+                function_type = "Tester"
             else:
                 # Use capitalized base name as fallback
                 function_type = base_name.capitalize()
         
-        # Combine for final name
-        return f"{agent_type} {function_type}"
+        # Add unique identifiers based on directory structure
+        # Extract the sub-module from path
+        path_segments = relative_path.split(os.sep)
+        submodule = ""
+        
+        # Look for specific submodules to include
+        for segment in path_segments:
+            if segment in ["rag", "deployment", "eval", "tests", "data_science", "customer_service", "brand_search_optimization"]:
+                submodule = f" ({segment})"
+                break
+                
+        # Add identifying numbers for potential duplicates based on directory depth
+        if len(path_segments) > 2:
+            depth_indicator = f"{len(path_segments)}"
+            if not submodule:
+                submodule = f" (L{depth_indicator})"
+                
+        # Special case for test files to differentiate them
+        if "test_" in os.path.basename(file_path):
+            test_name = os.path.basename(file_path).replace("test_", "").replace(".py", "")
+            if test_name:
+                submodule = f" ({test_name})"
+                
+        # Combine for final unique name
+        return f"{agent_type} {function_type}{submodule}"
         
     def _extract_description(self, file_path):
         """
