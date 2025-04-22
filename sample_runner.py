@@ -244,31 +244,31 @@ print("Module setup completed")
         Returns:
             str: Enhanced description of the sample
         """
-        # Comprehensive custom descriptions for all samples
+        # Comprehensive custom descriptions for all samples with specific API requirements
         custom_descriptions = {
             # RAG Agents
-            "agents/RAG/rag/agent.py": "RAG Agent: Creates a retrieval-augmented generation agent that answers questions using your data. When run: Shows agent setup and test conversation. Requires: Google Cloud Project and Vertex AI.",
-            "agents/RAG/deployment/deploy.py": "RAG Deployment: Deploys retrieval agent to Google Cloud for production use. When run: Creates and configures agent in your GCP. Requires: GCP with Vertex AI Agent Builder.",
-            "agents/RAG/deployment/run.py": "RAG Runner: Tests a deployed RAG agent with sample queries. When run: Shows conversation with your deployed agent. Requires: GCP Project and deployed agent ID.",
-            "agents/RAG/eval/test_eval.py": "RAG Evaluation: Tests RAG agent's accuracy on predefined questions. When run: Displays evaluation metrics and scores. Requires: GCP with Vertex AI permissions.",
+            "agents/RAG/rag/agent.py": "RAG Agent: Creates a retrieval-augmented generation agent that answers questions using your data. When run: Shows agent setup and test conversation. APIs needed: Vertex AI API, Generative Language API.",
+            "agents/RAG/deployment/deploy.py": "RAG Deployment: Deploys retrieval agent to Google Cloud for production use. When run: Creates and configures agent in your GCP. APIs needed: Vertex AI API, Agent Builder API, IAM API.",
+            "agents/RAG/deployment/run.py": "RAG Runner: Tests a deployed RAG agent with sample queries. When run: Shows conversation with your deployed agent. APIs needed: Vertex AI API, Agent Builder API.",
+            "agents/RAG/eval/test_eval.py": "RAG Evaluation: Tests RAG agent's accuracy on predefined questions. When run: Displays evaluation metrics and scores. APIs needed: Vertex AI API, Generative Language API.",
             
             # Data Science Agents
-            "agents/data-science/data_science/agent.py": "Data Science Agent: Performs data analysis using SQL and Python. When run: Executes sample queries and shows analysis results. Requires: GCP with BigQuery API.",
-            "agents/data-science/deployment/deploy.py": "Data Science Deployment: Publishes data analysis agent to Google Cloud. When run: Creates configured agent in your GCP. Requires: GCP with Agent Builder.",
-            "agents/data-science/deployment/test_deployment.py": "Data Science Deployment Test: Verifies successful agent deployment. When run: Tests agent functionality in cloud. Requires: GCP with deployed agent.",
-            "agents/data-science/eval/test_eval.py": "Data Science Evaluation: Tests data agent with analytical queries. When run: Shows query results and performance metrics. Requires: GCP with Vertex AI.",
-            "agents/data-science/tests/test_agents.py": "Data Science Agent Tests: Unit tests for data analysis agent. When run: Executes test suite and reports results. Requires: GCP with test data.",
+            "agents/data-science/data_science/agent.py": "Data Science Agent: Performs data analysis using SQL and Python. When run: Executes sample queries and shows analysis results. APIs needed: BigQuery API, Vertex AI API, Generative Language API.",
+            "agents/data-science/deployment/deploy.py": "Data Science Deployment: Publishes data analysis agent to Google Cloud. When run: Creates configured agent in your GCP. APIs needed: Vertex AI API, Agent Builder API, IAM API, BigQuery API.",
+            "agents/data-science/deployment/test_deployment.py": "Data Science Deployment Test: Verifies successful agent deployment. When run: Tests agent functionality in cloud. APIs needed: Vertex AI API, Agent Builder API.",
+            "agents/data-science/eval/test_eval.py": "Data Science Evaluation: Tests data agent with analytical queries. When run: Shows query results and performance metrics. APIs needed: Vertex AI API, BigQuery API.",
+            "agents/data-science/tests/test_agents.py": "Data Science Agent Tests: Unit tests for data analysis agent. When run: Executes test suite and reports results. APIs needed: BigQuery API, Vertex AI API.",
             
             # Customer Service Agents
-            "agents/customer-service/customer_service/agent.py": "Customer Service Agent: Handles customer inquiries and support tickets. When run: Demonstrates support conversation. Requires: GCP with Vertex AI.",
-            "agents/customer-service/deployment/deploy.py": "Customer Service Deployment: Deploys support agent to your cloud. When run: Creates agent in GCP for your application. Requires: GCP with Agent Builder.",
-            "agents/customer-service/eval/test_eval.py": "Customer Service Evaluation: Tests agent's responses to support queries. When run: Shows conversation testing with metrics. Requires: GCP with Vertex AI.",
+            "agents/customer-service/customer_service/agent.py": "Customer Service Agent: Handles customer inquiries and support tickets. When run: Demonstrates support conversation. APIs needed: Vertex AI API, Generative Language API.",
+            "agents/customer-service/deployment/deploy.py": "Customer Service Deployment: Deploys support agent to your cloud. When run: Creates agent in GCP for your application. APIs needed: Vertex AI API, Agent Builder API, IAM API.",
+            "agents/customer-service/eval/test_eval.py": "Customer Service Evaluation: Tests agent's responses to support queries. When run: Shows conversation testing with metrics. APIs needed: Vertex AI API, Generative Language API.",
             
             # Brand Search Optimization
-            "agents/brand-search-optimization/brand_search_optimization/agent.py": "Brand Search Agent: Optimizes search results for brand queries. When run: Demonstrates search optimization. Requires: GCP and Vertex AI.",
-            "agents/brand-search-optimization/deployment/bq_populate_data.py": "Brand Search Data Loader: Populates BigQuery with sample brand data. When run: Creates and fills BigQuery tables. Requires: GCP with BigQuery access.",
-            "agents/brand-search-optimization/deployment/deploy.py": "Brand Search Deployment: Deploys search optimization agent. When run: Publishes agent to your GCP. Requires: GCP with Agent Builder.",
-            "agents/brand-search-optimization/eval/eval.py": "Brand Search Evaluation: Tests search optimization effectiveness. When run: Shows performance metrics on test queries. Requires: GCP with Vertex AI."
+            "agents/brand-search-optimization/brand_search_optimization/agent.py": "Brand Search Agent: Optimizes search results for brand queries. When run: Demonstrates search optimization. APIs needed: Vertex AI API, Generative Language API.",
+            "agents/brand-search-optimization/deployment/bq_populate_data.py": "Brand Search Data Loader: Populates BigQuery with sample brand data. When run: Creates and fills BigQuery tables. APIs needed: BigQuery API, IAM API.",
+            "agents/brand-search-optimization/deployment/deploy.py": "Brand Search Deployment: Deploys search optimization agent. When run: Publishes agent to your GCP. APIs needed: Vertex AI API, Agent Builder API, IAM API, BigQuery API.",
+            "agents/brand-search-optimization/eval/eval.py": "Brand Search Evaluation: Tests search optimization effectiveness. When run: Shows performance metrics on test queries. APIs needed: Vertex AI API, Generative Language API, BigQuery API."
         }
         
         # Handle specific Python files that aren't meant to be directly run
@@ -297,16 +297,16 @@ print("Module setup completed")
             
         # For any unknown samples, give a more useful generic description based on path
         if "deployment" in file_path:
-            return "Agent Deployment Script: Deploys an agent to Google Cloud. When run: Creates cloud resources. Requires: Google Cloud Project credentials."
+            return "Agent Deployment Script: Deploys an agent to Google Cloud. When run: Creates cloud resources. APIs needed: Vertex AI API, Agent Builder API, IAM API."
         elif "eval" in file_path:
-            return "Agent Evaluation: Tests agent performance and accuracy. When run: Shows test results and metrics. Requires: Google Cloud Project credentials."
+            return "Agent Evaluation: Tests agent performance and accuracy. When run: Shows test results and metrics. APIs needed: Vertex AI API, Generative Language API."
         elif "agent" in file_path:
-            return "AI Agent: Performs specialized tasks using Google's Vertex AI. When run: Demonstrates agent capabilities. Requires: Google Cloud Project credentials."
+            return "AI Agent: Performs specialized tasks using Google's Vertex AI. When run: Demonstrates agent capabilities. APIs needed: Vertex AI API, Generative Language API."
         elif "test" in file_path:
-            return "Test Script: Validates agent functionality. When run: Executes tests and shows results. Requires: Google Cloud Project credentials."
+            return "Test Script: Validates agent functionality. When run: Executes tests and shows results. APIs needed: Vertex AI API, Generative Language API."
             
         # Default description that avoids copyright text
-        return "ADK Sample Script: Demonstrates ADK functionality. When run: Shows sample execution. Requires: Google Cloud Project credentials."
+        return "ADK Sample Script: Demonstrates ADK functionality. When run: Shows sample execution. APIs needed: Vertex AI API, Generative Language API."
     
     def _get_source_code(self, file_path):
         """
