@@ -25,6 +25,18 @@ def index():
     # Check if ADK samples are already set up
     is_setup = os.path.exists(ADK_SAMPLES_PATH)
     
+    # Check if Google Cloud credentials are set up
+    has_credentials = False
+    env_path = os.path.join(ADK_SAMPLES_PATH, '.env')
+    if os.path.exists(env_path):
+        try:
+            with open(env_path, 'r') as f:
+                content = f.read()
+                if 'GOOGLE_CLOUD_PROJECT' in content:
+                    has_credentials = True
+        except Exception as e:
+            logger.error(f"Error checking credentials: {e}")
+    
     # List sample directories if already set up
     samples = []
     if is_setup:
@@ -34,7 +46,7 @@ def index():
             logger.error(f"Error getting samples: {e}")
             flash(f"Error listing samples: {e}", "danger")
     
-    return render_template('index.html', is_setup=is_setup, samples=samples)
+    return render_template('index.html', is_setup=is_setup, samples=samples, has_credentials=has_credentials)
 
 @app.route('/setup', methods=['POST'])
 def setup():

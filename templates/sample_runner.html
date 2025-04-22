@@ -69,6 +69,12 @@
                     <div class="alert alert-warning">
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         No sample execution result found. Please select and run a sample first.
+                        <hr>
+                        <p>Want to run samples with full functionality?</p>
+                        <a href="{{ url_for('cloud_credentials') }}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-cloud me-1"></i>
+                            Configure Google Cloud Credentials
+                        </a>
                     </div>
                 {% endif %}
             </div>
