@@ -29,6 +29,9 @@
                         {% if result.success and "Module imports completed" in result.output %}
                             <span class="badge bg-info ms-2">Import Test Only</span>
                             <p class="mt-2 small">Note: This sample requires Google Cloud credentials for full execution, but imports were successful.</p>
+                        {% elif result.errors and "Unable to find your project" in result.errors %}
+                            <span class="badge bg-warning ms-2">Credentials Needed</span>
+                            <p class="mt-2 small">This sample requires Google Cloud credentials. <a href="{{ url_for('cloud_credentials') }}" class="alert-link">Configure credentials here</a>.</p>
                         {% endif %}
                     </div>
                     

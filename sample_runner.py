@@ -146,27 +146,64 @@ try:
     # Import directly instead of using relative imports
     import google.adk as adk
     print("Successfully imported ADK")
+    
+    # Check for environment variables
+    project_id = os.environ.get('GOOGLE_CLOUD_PROJECT')
+    if project_id:
+        print(f"Using Google Cloud Project: {project_id}")
+    else:
+        print("Warning: No Google Cloud Project ID found in environment variables")
 except Exception as e:
     print(f"Import error: {e}")
 
 print("Module setup completed")
 ''')
+                # Check for environment variables
+                env_vars = os.environ.copy()
+                env_path = os.path.join(os.path.dirname(os.path.dirname(sample_path)), '.env')
+                if os.path.exists(env_path):
+                    try:
+                        with open(env_path, 'r') as f:
+                            for line in f:
+                                if '=' in line:
+                                    key, value = line.strip().split('=', 1)
+                                    env_vars[key] = value
+                                    logger.info(f"Using environment variable: {key}")
+                    except Exception as e:
+                        logger.error(f"Error reading .env file: {e}")
+                
                 process = subprocess.run(
                     [sys.executable, 'run_deploy_temp.py'],
                     capture_output=True,
                     text=True,
-                    timeout=60
+                    timeout=60,
+                    env=env_vars  # Pass environment variables
                 )
                 # Clean up temp file
                 if os.path.exists(temp_file):
                     os.remove(temp_file)
             else:
                 # Regular run method for other samples
+                # Check for environment variables
+                env_vars = os.environ.copy()
+                env_path = os.path.join(os.path.dirname(os.path.dirname(sample_path)), '.env')
+                if os.path.exists(env_path):
+                    try:
+                        with open(env_path, 'r') as f:
+                            for line in f:
+                                if '=' in line:
+                                    key, value = line.strip().split('=', 1)
+                                    env_vars[key] = value
+                                    logger.info(f"Using environment variable: {key}")
+                    except Exception as e:
+                        logger.error(f"Error reading .env file: {e}")
+                
                 process = subprocess.run(
                     [sys.executable, os.path.basename(sample_path)], 
                     capture_output=True, 
                     text=True,
-                    timeout=60  # 60 second timeout to prevent hanging
+                    timeout=60,  # 60 second timeout to prevent hanging
+                    env=env_vars  # Pass environment variables
                 )
             
             # Restore original directory
