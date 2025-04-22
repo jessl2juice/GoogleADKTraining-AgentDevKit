@@ -67,7 +67,7 @@ def setup_adk_environment():
             subprocess.run([sys.executable, "-m", "pip", "install", "google-adk"], check=True, capture_output=True)
             
             # Install additional dependencies for samples
-            subprocess.run([sys.executable, "-m", "pip", "install", "requests", "matplotlib", "pandas", "numpy"], 
+            subprocess.run([sys.executable, "-m", "pip", "install", "requests", "matplotlib", "pandas", "numpy", "llama-index"], 
                          check=True, capture_output=True)
             
             logger.info("Successfully installed ADK and dependencies")
@@ -99,7 +99,8 @@ def check_dependencies():
         {"name": "requests", "package": "requests"},
         {"name": "matplotlib", "package": "matplotlib"},
         {"name": "pandas", "package": "pandas"},
-        {"name": "numpy", "package": "numpy"}
+        {"name": "numpy", "package": "numpy"},
+        {"name": "llama-index", "package": "llama_index"}
     ]
     
     result = {
