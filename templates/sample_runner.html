@@ -1,0 +1,71 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header bg-dark">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3>
+                        <i class="fas fa-play-circle me-2"></i>
+                        Sample Runner Results
+                    </h3>
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>
+                        Back to Samples
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if result %}
+                    <div class="mb-4">
+                        <h4>Sample: {{ result.sample_name }}</h4>
+                        <p class="text-muted">Path: {{ result.sample_path }}</p>
+                    </div>
+                    
+                    <div class="alert {% if result.success %}alert-success{% else %}alert-danger{% endif %}">
+                        <i class="fas {% if result.success %}fa-check-circle{% else %}fa-exclamation-circle{% endif %} me-2"></i>
+                        {{ "Successfully executed sample" if result.success else "Failed to execute sample" }}
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header bg-dark">
+                            <h5>Output</h5>
+                        </div>
+                        <div class="card-body">
+                            <pre class="p-3 bg-dark text-light rounded"><code>{{ result.output }}</code></pre>
+                        </div>
+                    </div>
+                    
+                    {% if result.errors %}
+                    <div class="card mb-4">
+                        <div class="card-header bg-danger text-white">
+                            <h5>Errors</h5>
+                        </div>
+                        <div class="card-body">
+                            <pre class="p-3 bg-dark text-light rounded"><code>{{ result.errors }}</code></pre>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if result.source_code %}
+                    <div class="card">
+                        <div class="card-header bg-dark">
+                            <h5>Source Code</h5>
+                        </div>
+                        <div class="card-body">
+                            <pre class="p-3 bg-dark text-light rounded"><code>{{ result.source_code }}</code></pre>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% else %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        No sample execution result found. Please select and run a sample first.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

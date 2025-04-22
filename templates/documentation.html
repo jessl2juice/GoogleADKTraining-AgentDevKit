@@ -1,0 +1,153 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header bg-dark">
+                <h3>
+                    <i class="fas fa-book me-2"></i>
+                    Google ADK Documentation
+                </h3>
+            </div>
+            <div class="card-body">
+                <p>
+                    The Google Agent Development Kit (ADK) is a powerful toolset for building AI agents. 
+                    Below you'll find key information and resources to help you get started with the ADK.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-dark">
+                <h4>
+                    <i class="fas fa-book-open me-2"></i>
+                    Getting Started
+                </h4>
+            </div>
+            <div class="card-body">
+                <h5>Prerequisites</h5>
+                <ul>
+                    <li>Python 3.9 or higher</li>
+                    <li>pip (Python package installer)</li>
+                    <li>Git (for cloning repositories)</li>
+                </ul>
+                
+                <h5>Installation</h5>
+                <p>The main ADK package can be installed using pip:</p>
+                <pre class="p-3 bg-dark text-light rounded"><code>pip install google-adk</code></pre>
+                
+                <h5>First Steps</h5>
+                <ol>
+                    <li>Set up the ADK environment (already done in this training environment)</li>
+                    <li>Explore the sample agents in the ADK Samples repository</li>
+                    <li>Run the samples to understand their functionality</li>
+                    <li>Start modifying existing samples or create your own agents</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-dark">
+                <h4>
+                    <i class="fas fa-puzzle-piece me-2"></i>
+                    Key Concepts
+                </h4>
+            </div>
+            <div class="card-body">
+                <h5>Agents</h5>
+                <p>Agents are AI-powered entities that can perform specific tasks. In the Google ADK, agents are built using Python and can leverage various Google services.</p>
+                
+                <h5>Functions</h5>
+                <p>Functions are the building blocks of agents. They define what actions an agent can take or how it processes information.</p>
+                
+                <h5>Tools</h5>
+                <p>Tools are pre-built functions that agents can use to perform common tasks or interact with external services.</p>
+                
+                <h5>Prompts</h5>
+                <p>Prompts are used to guide the AI model's responses. Well-designed prompts are crucial for building effective agents.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header bg-dark">
+                <h4>
+                    <i class="fas fa-code me-2"></i>
+                    Sample Code Structure
+                </h4>
+            </div>
+            <div class="card-body">
+                <p>Most ADK samples follow a similar structure:</p>
+                <pre class="p-3 bg-dark text-light rounded"><code>import adk
+from adk import Agent, Tool, functions
+
+# Define functions the agent can use
+@functions.register
+def some_function(param1: str, param2: int) -> str:
+    """Function description."""
+    # Function implementation
+    return result
+
+# Create tools from functions
+some_tool = Tool(some_function)
+
+# Create and configure an agent
+agent = Agent(
+    name="Sample Agent",
+    description="A sample agent that demonstrates ADK capabilities.",
+    tools=[some_tool]
+)
+
+# Run the agent
+if __name__ == "__main__":
+    agent.run()</code></pre>
+                
+                <p>This basic structure can be expanded to create more complex agents with multiple functions, tools, and capabilities.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header bg-dark">
+                <h4>
+                    <i class="fas fa-external-link-alt me-2"></i>
+                    External Resources
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    <a href="https://github.com/google/adk-samples" target="_blank" class="list-group-item list-group-item-action">
+                        <i class="fab fa-github me-2"></i>
+                        <strong>ADK Samples Repository</strong> - Official repository containing sample agents and code
+                    </a>
+                    <a href="https://developers.google.com/agent-development/get-started" target="_blank" class="list-group-item list-group-item-action">
+                        <i class="fas fa-book-open me-2"></i>
+                        <strong>Official Documentation</strong> - Comprehensive guide to the Google ADK
+                    </a>
+                    <a href="https://developers.google.com/agent-development/reference" target="_blank" class="list-group-item list-group-item-action">
+                        <i class="fas fa-code me-2"></i>
+                        <strong>API Reference</strong> - Detailed reference for all ADK classes and functions
+                    </a>
+                    <a href="https://developers.google.com/agent-development/tutorials" target="_blank" class="list-group-item list-group-item-action">
+                        <i class="fas fa-graduation-cap me-2"></i>
+                        <strong>Tutorials</strong> - Step-by-step guides for building agents
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

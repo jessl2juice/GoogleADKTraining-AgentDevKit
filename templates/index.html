@@ -1,0 +1,131 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <div class="card bg-dark">
+            <div class="card-body">
+                <h1 class="card-title">
+                    <i class="fas fa-robot me-2"></i>
+                    Google ADK Training Environment
+                </h1>
+                <p class="card-text">
+                    Welcome to the Google ADK (Agent Development Kit) training environment. 
+                    This interface will help you learn, test, and develop AI agents using Google's ADK.
+                </p>
+                {% if not is_setup %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    It looks like the ADK samples haven't been set up yet. Click the button below to download and set up the environment.
+                </div>
+                <form action="{{ url_for('setup') }}" method="post">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-download me-1"></i>
+                        Set Up ADK Environment
+                    </button>
+                </form>
+                {% else %}
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i>
+                    ADK environment is set up! You can now run samples and start developing.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if is_setup and samples %}
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header bg-dark">
+                <h3>
+                    <i class="fas fa-code me-2"></i>
+                    Available Samples
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Sample Name</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sample in samples %}
+                            <tr>
+                                <td>{{ sample.name }}</td>
+                                <td>{{ sample.description }}</td>
+                                <td>
+                                    <form action="{{ url_for('run_sample') }}" method="post" class="d-inline">
+                                        <input type="hidden" name="sample_path" value="{{ sample.path }}">
+                                        <button type="submit" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-play me-1"></i>
+                                            Run
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-dark">
+                <h3>
+                    <i class="fas fa-book me-2"></i>
+                    Getting Started
+                </h3>
+            </div>
+            <div class="card-body">
+                <ol class="list-group list-group-numbered">
+                    <li class="list-group-item">Set up the ADK environment using the button above</li>
+                    <li class="list-group-item">Explore available samples from the samples table</li>
+                    <li class="list-group-item">Run a sample to test its functionality</li>
+                    <li class="list-group-item">Examine the sample's code to learn how it works</li>
+                    <li class="list-group-item">Modify and create your own agents</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-dark">
+                <h3>
+                    <i class="fas fa-link me-2"></i>
+                    Resources
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    <a href="https://github.com/google/adk-samples" target="_blank" class="list-group-item list-group-item-action">
+                        <i class="fab fa-github me-2"></i>
+                        ADK Samples GitHub Repository
+                    </a>
+                    <a href="https://developers.google.com/agent-development/get-started" target="_blank" class="list-group-item list-group-item-action">
+                        <i class="fas fa-book-open me-2"></i>
+                        Official ADK Documentation
+                    </a>
+                    <a href="https://developers.google.com/agent-development/reference" target="_blank" class="list-group-item list-group-item-action">
+                        <i class="fas fa-code me-2"></i>
+                        API Reference
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
