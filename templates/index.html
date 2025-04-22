@@ -93,6 +93,48 @@
     </div>
 </div>
 
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-dark">
+                <h3>
+                    <i class="fas fa-book me-2"></i>
+                    Getting Started
+                </h3>
+            </div>
+            <div class="card-body">
+                <ol class="list-group list-group-numbered">
+                    <li class="list-group-item">Set up the ADK environment using the button above</li>
+                    <li class="list-group-item">Explore available samples from the samples table</li>
+                    <li class="list-group-item">Run a sample to test its functionality</li>
+                    <li class="list-group-item">Examine the sample's code to learn how it works</li>
+                    <li class="list-group-item">Modify and create your own agents</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-dark">
+                <h3>
+                    <i class="fas fa-info-circle me-2"></i>
+                    Usage Tips
+                </h3>
+            </div>
+            <div class="card-body">
+                <ul class="list-group">
+                    <li class="list-group-item">Install all dependencies when prompted</li>
+                    <li class="list-group-item">Check error messages for missing modules</li>
+                    <li class="list-group-item">View sample source code to understand implementation</li>
+                    <li class="list-group-item">Try simple samples first before complex ones</li>
+                    <li class="list-group-item">Refer to the documentation for API details</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% if is_setup and samples %}
 <div class="row mb-4">
     <div class="col-lg-12">
@@ -149,46 +191,4 @@
     </div>
 </div>
 {% endif %}
-
-<div class="row">
-    <div class="col-lg-6 mb-4">
-        <div class="card h-100">
-            <div class="card-header bg-dark">
-                <h3>
-                    <i class="fas fa-book me-2"></i>
-                    Getting Started
-                </h3>
-            </div>
-            <div class="card-body">
-                <ol class="list-group list-group-numbered">
-                    <li class="list-group-item">Set up the ADK environment using the button above</li>
-                    <li class="list-group-item">Explore available samples from the samples table</li>
-                    <li class="list-group-item">Run a sample to test its functionality</li>
-                    <li class="list-group-item">Examine the sample's code to learn how it works</li>
-                    <li class="list-group-item">Modify and create your own agents</li>
-                </ol>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-lg-6 mb-4">
-        <div class="card h-100">
-            <div class="card-header bg-dark">
-                <h3>
-                    <i class="fas fa-info-circle me-2"></i>
-                    Usage Tips
-                </h3>
-            </div>
-            <div class="card-body">
-                <ul class="list-group">
-                    <li class="list-group-item">Install all dependencies when prompted</li>
-                    <li class="list-group-item">Check error messages for missing modules</li>
-                    <li class="list-group-item">View sample source code to understand implementation</li>
-                    <li class="list-group-item">Try simple samples first before complex ones</li>
-                    <li class="list-group-item">Refer to the documentation for API details</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
