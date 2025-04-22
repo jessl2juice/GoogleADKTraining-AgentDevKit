@@ -96,8 +96,8 @@ class SampleRunner:
             sample_dir = os.path.dirname(sample_path)
             os.chdir(sample_dir)
             
-            # Handle special case for RAG samples with relative imports
-            if 'RAG/rag/agent.py' in sample_path or 'agents/RAG/rag/agent.py' in sample_path:
+            # Handle samples with relative imports
+            if 'RAG/rag/agent.py' in sample_path or 'agents/RAG/rag/agent.py' in sample_path or 'keyword_finding/agent.py' in sample_path or 'sub_agents' in sample_path:
                 # Create a temporary file that imports the module correctly
                 temp_file = os.path.join(sample_dir, 'run_sample_temp.py')
                 with open(temp_file, 'w') as f:

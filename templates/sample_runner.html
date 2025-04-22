@@ -26,6 +26,10 @@
                     <div class="alert {% if result.success %}alert-success{% else %}alert-danger{% endif %}">
                         <i class="fas {% if result.success %}fa-check-circle{% else %}fa-exclamation-circle{% endif %} me-2"></i>
                         {{ "Successfully executed sample" if result.success else "Failed to execute sample" }}
+                        {% if result.success and "Module imports completed" in result.output %}
+                            <span class="badge bg-info ms-2">Import Test Only</span>
+                            <p class="mt-2 small">Note: This sample requires Google Cloud credentials for full execution, but imports were successful.</p>
+                        {% endif %}
                     </div>
                     
                     <div class="card mb-4">
