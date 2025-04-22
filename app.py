@@ -91,6 +91,61 @@ def check_dependencies():
     except Exception as e:
         logger.exception("Error checking dependencies")
         return jsonify({'success': False, 'message': str(e)})
+        
+@app.route('/cloud_credentials', methods=['GET', 'POST'])
+def cloud_credentials():
+    """Manage Google Cloud credentials for ADK samples."""
+    if request.method == 'POST':
+        try:
+            # Get form data
+            project_id = request.form.get('project_id')
+            location = request.form.get('location', 'us-central1')
+            api_key = request.form.get('api_key', '')
+            
+            # Validate inputs
+            if not project_id:
+                flash("Project ID is required", "danger")
+                return redirect(url_for('cloud_credentials'))
+            
+            # Create .env file in the adk-samples directory
+            env_path = os.path.join(ADK_SAMPLES_PATH, '.env')
+            with open(env_path, 'w') as f:
+                f.write(f"GOOGLE_CLOUD_PROJECT={project_id}\n")
+                f.write(f"GOOGLE_CLOUD_LOCATION={location}\n")
+                if api_key:
+                    f.write(f"GOOGLE_API_KEY={api_key}\n")
+                f.write("GOOGLE_GENAI_USE_VERTEXAI=1\n")
+            
+            # Set environment variables for the current process
+            os.environ['GOOGLE_CLOUD_PROJECT'] = project_id
+            os.environ['GOOGLE_CLOUD_LOCATION'] = location
+            if api_key:
+                os.environ['GOOGLE_API_KEY'] = api_key
+            os.environ['GOOGLE_GENAI_USE_VERTEXAI'] = '1'
+            
+            flash("Google Cloud credentials saved successfully!", "success")
+            return redirect(url_for('index'))
+            
+        except Exception as e:
+            logger.exception("Error saving credentials")
+            flash(f"Error saving credentials: {str(e)}", "danger")
+            return redirect(url_for('cloud_credentials'))
+    
+    # GET request - show the form
+    # Check if credentials already exist
+    env_path = os.path.join(ADK_SAMPLES_PATH, '.env')
+    credentials = {}
+    if os.path.exists(env_path):
+        try:
+            with open(env_path, 'r') as f:
+                for line in f:
+                    if '=' in line:
+                        key, value = line.strip().split('=', 1)
+                        credentials[key] = value
+        except Exception as e:
+            logger.error(f"Error reading .env file: {e}")
+    
+    return render_template('cloud_credentials.html', credentials=credentials)
 
 # Initialize sample runner if ADK samples are already available
 if os.path.exists(ADK_SAMPLES_PATH):
